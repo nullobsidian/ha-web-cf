@@ -1,0 +1,10 @@
+[
+    {
+        "ParameterKey": "EnvironmentName",
+        "ParameterValue": "Development"
+    },
+    {
+        "ParameterKey": "S3BucketName",
+        "ParameterValue": "demo-udagram"
+    }
+]

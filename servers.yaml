@@ -171,7 +171,7 @@ Resources:
 
 Outputs:
   LBDns:
-    Description: "The DNS name for the load balancer."
-    Value: !Join [ "", [ "http://", !GetAtt WebAppLB.DNSName ] ]
-    Export:
-      Name: Loadbalancer URL
+      Description: "The DNS name for the load balancer."
+      Value: !Join [ "", [ "http://", !GetAtt WebAppLB.DNSName ]]
+      Export:
+          Name: Loadbalancer-URL

@@ -270,7 +270,7 @@ Outputs:
       Description: Private Routing AZ2
       Value: !Ref PrivateRouteTable2
       Export:
-          Name: !Sub ${EnvironmentName}-PR12-RT
+          Name: !Sub ${EnvironmentName}-PRI2-RT
 
   VPCPrivateRouteTable3:
       Description: Private Routing AZ3

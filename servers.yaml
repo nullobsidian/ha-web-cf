@@ -1,3 +1,6 @@
+Description: >
+    Moses Marquez / ha-web-cf
+
 Parameters:
 
     EnvironmentName:
@@ -50,7 +53,7 @@ Resources:
           CidrIp: 0.0.0.0/0
 
   S3CustomRole:
-    Type: 'AWS::IAM::Role'
+    Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
@@ -58,25 +61,25 @@ Resources:
           - Effect: Allow
             Principal:
               Service:
-              - ec2.amazonaws.com
-              Action:
+              - s3.amazonaws.com
+            Action:
               - sts:AssumeRole
+      Path: "/"
   RolePolicies:
-    Type: "AWS::IAM::Policy"
+    Type: AWS::IAM::Policy
     Properties:
       PolicyName: s3cp-webapp
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-        - Effect: Allow
-          Action:
-          - s3:GetObject
-          - s3:PutObject
-          - s3:PutObjectAcl
-          Resource:
-            Fn::Sub: arn:aws:s3:::${S3BucketName}/* 
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:PutObjectAcl
+            Resource: !Sub arn:aws:s3:::${S3BucketName}/* 
       Roles:
-        - Ref: S3CustomRole
+        - !Ref S3CustomRole
 
   DefaultInstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -94,14 +97,18 @@ Resources:
           apt-get install unzip awscli openssh-server -y
           apt-get install apache2 -y
           ufw allow ssh
+          if [ ! -d "$HOME/.aws" ]; then mkdir -p $HOME/.aws/
+          echo '[profile s3role]' > ~/.aws/config
+          echo 'role_arn = arn:aws::${AWS::AccountId}:role/S3CustomRole' >> ~/.aws/config
+          echo 'credential_source = Ec2InstanceMetadata' >> ~/.aws/config
           if [ ! -d "$HOME/.ssh" ]; then mkdir -p $HOME/.ssh/
-          aws s3 cp s3://${S3BucketName}/keys/id_rsa.pub /tmp/
+          aws s3 cp s3://${S3BucketName}/keys/id_rsa.pub /tmp/ --profile s3role
           cat /tmp/ssh_id.pub >> ~/.ssh/authorized_keys
           chown 700 ~/.ssh/ && chown 644 ~/.ssh/authorized_keys
           cd /var/www/html
-          aws s3 cp s3://${S3BucketName}/website.zip .
+          aws s3 cp s3://${S3BucketName}/website.zip . --profile s3role
           unzip -o website.zip
-      ImageId: ami-0ac80df6eff0e70b5 
+      ImageId: ami-003634241a8fcdec0 
       InstanceType: t3.small
       IamInstanceProfile: !Ref DefaultInstanceProfile
       SecurityGroups:
@@ -119,8 +126,8 @@ Resources:
           !Sub "${EnvironmentName}-PRIV-NETS"
       LaunchConfigurationName:
         Ref: WebAppLaunchConfig
-      MaxSize: '2'
-      MinSize: '6'
+      MaxSize: '6'
+      MinSize: '2'
       TargetGroupARNs:
       - Ref: WebAppTargetGroup
 
@@ -149,7 +156,7 @@ Resources:
     Properties:
       Actions:
         - Type: forward
-          TargetGroupArn: !Ref 'WebAppTargetGroup'
+          TargetGroupArn: !Ref WebAppTargetGroup
       Conditions:
         - Field: path-pattern
           Values: [/]
@@ -167,7 +174,7 @@ Resources:
       UnhealthyThresholdCount: 5
       VpcId:
         Fn::ImportValue:
-          Fn::Sub: "${EnvironmentName}-VPCID"
+          !Sub "${EnvironmentName}-VPCID"
 
 Outputs:
   

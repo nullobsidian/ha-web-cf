@@ -87,8 +87,12 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash
           apt-get update -y
-          apt-get install unzip awscli -y
+          apt-get install unzip awscli openssh-server -y
           apt-get install apache2 -y
+          ufw allow ssh
+          if [ ! -d "$HOME/.ssh" ]; then mkdir -p $HOME/.ssh/
+          aws s3 cp s3://${S3BucketName}/keys/id_rsa.pub /tmp/
+          cat /tmp/ssh_id.pub >> ~/.ssh/authorized_keys
           cd /var/www/html
           aws s3 cp s3://${S3BucketName}/website.zip .
           unzip -o website.zip

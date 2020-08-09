@@ -324,4 +324,4 @@ Outputs:
       Description: A reference to the private subnet in 3rd Availability Zone
       Value: !Ref PrivateSubnet3
       Export:
-          Name: !Sub ${EnvironmentName}-PRI1-SN
+          Name: !Sub ${EnvironmentName}-PRI3-SN

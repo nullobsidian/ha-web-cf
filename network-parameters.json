@@ -4,7 +4,7 @@
 		"ParameterValue": "Development"
 	},
 	{
-		"ParameterKey": "VpcCIDR",
+		"ParameterKey": "VpcCidr",
 		"ParameterValue": "10.0.0.0/16"
 	},
 	{

@@ -39,6 +39,10 @@ Resources:
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
       SecurityGroupEgress:
         - IpProtocol: tcp
           FromPort: 0
@@ -93,6 +97,7 @@ Resources:
           if [ ! -d "$HOME/.ssh" ]; then mkdir -p $HOME/.ssh/
           aws s3 cp s3://${S3BucketName}/keys/id_rsa.pub /tmp/
           cat /tmp/ssh_id.pub >> ~/.ssh/authorized_keys
+          chown 700 ~/.ssh/ && chown 644 ~/.ssh/authorized_keys
           cd /var/www/html
           aws s3 cp s3://${S3BucketName}/website.zip .
           unzip -o website.zip

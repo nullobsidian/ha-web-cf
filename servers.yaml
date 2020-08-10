@@ -53,37 +53,36 @@ Resources:
           CidrIp: 0.0.0.0/0
 
   S3CustomRole:
-    Type: AWS::IAM::Role
+    Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument:
-        Version: 2012-10-17
+        Version: "2012-10-17"
         Statement: 
-          - Effect: Allow
+          - Effect: "Allow"
             Principal:
               Service:
-              - s3.amazonaws.com
+              - ec2.amazonaws.com
             Action:
               - sts:AssumeRole
       Path: "/"
-  RolePolicies:
-    Type: AWS::IAM::Policy
+      RoleName: s3role-webapp
+  S3CustomRolePolicy:
+    Type: "AWS::IAM::Policy"
     Properties:
-      PolicyName: s3cp-webapp
+      PolicyName: "s3cp-webapp"
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Effect: Allow
-            Action:
-              - s3:GetObject
-              - s3:PutObject
-              - s3:PutObjectAcl
-            Resource: !Sub arn:aws:s3:::${S3BucketName}/* 
+          - Effect: "Allow"
+            Action: "s3:*"
+            Resource: "*"
       Roles:
         - !Ref S3CustomRole
 
   DefaultInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
+      Path: "/"
       Roles:
         - !Ref S3CustomRole
 
@@ -97,17 +96,17 @@ Resources:
           apt-get install unzip awscli openssh-server -y
           apt-get install apache2 -y
           ufw allow ssh
-          if [ ! -d "$HOME/.aws" ]; then mkdir -p $HOME/.aws/
-          echo '[profile s3role]' > ~/.aws/config
-          echo 'role_arn = arn:aws:iam::${AWS::AccountId}:role/S3CustomRole' >> ~/.aws/config
-          echo 'credential_source = Ec2InstanceMetadata' >> ~/.aws/config
-          if [ ! -d "$HOME/.ssh" ]; then mkdir -p $HOME/.ssh/
-          aws s3 cp s3://${S3BucketName}/keys/id_rsa.pub /tmp/ --profile s3role
+          if [ ! -d "$HOME/.aws" ]; then mkdir -p $HOME/.aws/; fi
+          if [ ! -d "$HOME/.ssh" ]; then mkdir -p $HOME/.ssh/; fi
+          rm /var/www/html/index.html
+          aws s3 cp s3://${S3BucketName}/key/id_rsa.pub /tmp/
           cat /tmp/id_rsa.pub > ~/.ssh/authorized_keys
           chown 700 ~/.ssh/ && chown 644 ~/.ssh/authorized_keys
           cd /var/www/html
-          aws s3 cp s3://${S3BucketName}/website.zip . --profile s3role
+          rm index.html
+          aws s3 cp s3://${S3BucketName}/website.zip .
           unzip -o website.zip
+          rm website.zip
       ImageId: ami-003634241a8fcdec0 
       InstanceType: t3.small
       IamInstanceProfile: !Ref DefaultInstanceProfile

@@ -66,18 +66,8 @@ Resources:
               - sts:AssumeRole
       Path: "/"
       RoleName: s3role-webapp
-  S3CustomRolePolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "s3cp-webapp"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Action: "s3:*"
-            Resource: "*"
-      Roles:
-        - !Ref S3CustomRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
 
   DefaultInstanceProfile:
     Type: AWS::IAM::InstanceProfile

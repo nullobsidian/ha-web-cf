@@ -1,7 +1,7 @@
 [
 	{
 		"ParameterKey": "EnvironmentName",
-		"ParameterValue": "Development"
+		"ParameterValue": "ha-web-cf"
 	},
 	{
 		"ParameterKey": "VpcCidr",
